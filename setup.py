@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-setup(name='subriemannian-qc',
+setup(name='subriemannian_qc',
       version='1.0',
       author='Grant Kluber',
       url='gkluber.github.io',
