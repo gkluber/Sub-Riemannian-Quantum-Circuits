@@ -25,7 +25,7 @@ def generate_lie_algebra(n: int):
     return basis
 
 
-def :
+def generate_allowed_subset(n: int) -> np.ndarray:
     if n == 0:
         return np.array([])
     elif n == 1:
@@ -52,7 +52,7 @@ def :
                     two_body[y] = j
                     allowed_strings.append(two_body)
 
-    # Convert index-strings to matrices
+    # Convert index-strings to matrices. TODO compress them until actually needed for calculation
     allowed = []
     for string in allowed_strings:
         allowed.append(get_pauli_tensor(string))

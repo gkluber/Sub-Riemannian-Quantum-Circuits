@@ -3,11 +3,12 @@ import unittest
 from collections import Counter
 from math import factorial
 from unittest import TestCase
-from subriemannian_qc.util import combinations, generate_allowed_subset
+from subriemannian_qc.util import combinations, generate_allowed_subset, generate_lie_algebra
 import numpy.testing as nptest
 import numpy as np
 import itertools
 import random
+from scipy.special import binom
 
 
 class TestCombinations(TestCase):
@@ -41,7 +42,7 @@ class TestCombinations(TestCase):
                 nptest.assert_equal(actual_array, expected_array)
     '''
 
-class TestPermutations(TestCase):
+'''class TestPermutations(TestCase):
 
     def test_num_distinct_permutations(self):
         # Generate 1000 lists
@@ -54,6 +55,7 @@ class TestPermutations(TestCase):
             redundancies = functools.reduce(lambda a, b: a * b, [factorial(value) for _, value in frequencies])
             num_perms = factorial(size) // redundancies
             self.assertEqual(num_perms, len(distinct_permutations(elems)))
+'''
 
 
 class TestPauli(TestCase):
@@ -62,10 +64,20 @@ class TestPauli(TestCase):
         pass
 
 
+class TestLieAlgebra(TestCase):
+
+    def test_size(self):
+        for n in range(1, 5):
+            algebra = generate_lie_algebra(n)
+            expected = 4**n - 1
+            actual = len(algebra)
+            self.assertEqual(expected, actual, 'Failure when n = {}'.format(n))
+
+
 class TestAllowed(TestCase):
 
     def test_allowed_size(self):
-        for n in range(1, 20):
+        for n in range(1, 10):
             # Count the number of one/two-body terms in the allowed set
             n_allowed = 9 * n * (n - 1) // 2 + 3 * n
             self.assertEqual(n_allowed, len(generate_allowed_subset(n)), 'Failure when n = {}'.format(n))
