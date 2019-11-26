@@ -1,5 +1,5 @@
-import numpy as np
 from scipy.stats import unitary_group
+
 from subriemannian_qc.discrete import DiscreteApproximator
 from subriemannian_qc.util import elementwise_error
 
@@ -9,7 +9,7 @@ for _ in range(5):
     #  With overwhelming probability, this matrix will be hard:
     target = unitary_group.rvs(8)
     gate_approx = DiscreteApproximator(3, 10, 10, 1, 100)
-    approx = gate_approx.approx_matrix(target)
+    approx, _ = gate_approx.approx_matrix(target)
 
     print(target)
     print(approx)

@@ -1,6 +1,10 @@
 import numpy as np
 from subriemannian_qc.matrix_util import conj_transpose
 
+'''
+Input validation utility functions.
+'''
+
 
 def is_matrix(a: np.ndarray) -> bool:
     return len(a.shape) == 2 and a.shape[0] == a.shape[1]

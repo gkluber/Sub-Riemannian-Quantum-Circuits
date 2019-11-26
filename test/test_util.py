@@ -1,14 +1,14 @@
-import functools
-import unittest
-from collections import Counter
-from math import factorial
 from unittest import TestCase
-from subriemannian_qc.util import combinations, generate_allowed_subset, generate_lie_algebra
-import numpy.testing as nptest
+
 import numpy as np
-import itertools
-import random
-from scipy.special import binom
+import numpy.testing as nptest
+
+from subriemannian_qc.util import combinations, generate_allowed_subset, generate_lie_algebra
+
+'''
+Unit tests for utility functions. Due to the probabilistic nature of optimization, we didn't write
+any unit tests for finding optimal gates and instead verified this using examples.
+'''
 
 
 class TestCombinations(TestCase):
@@ -42,26 +42,11 @@ class TestCombinations(TestCase):
                 nptest.assert_equal(actual_array, expected_array)
     '''
 
-'''class TestPermutations(TestCase):
-
-    def test_num_distinct_permutations(self):
-        # Generate 1000 lists
-        for x in range(1000):
-            # Each list consists of 10 elements uniformly randomly selected from {0, 1, ..., 5}
-            elems = [random.randint(0, 5) for _ in range(10)]
-            size = len(elems)
-            cnt = Counter(elems)
-            frequencies = cnt.items()
-            redundancies = functools.reduce(lambda a, b: a * b, [factorial(value) for _, value in frequencies])
-            num_perms = factorial(size) // redundancies
-            self.assertEqual(num_perms, len(distinct_permutations(elems)))
-'''
-
 
 class TestPauli(TestCase):
 
     def test_factorized(self):
-        pass
+        pass  # TODO test generate_pauli_tensor
 
 
 class TestLieAlgebra(TestCase):
@@ -69,7 +54,7 @@ class TestLieAlgebra(TestCase):
     def test_size(self):
         for n in range(1, 5):
             algebra = generate_lie_algebra(n)
-            expected = 4**n - 1
+            expected = 4**n
             actual = len(algebra)
             self.assertEqual(expected, actual, 'Failure when n = {}'.format(n))
 
@@ -79,5 +64,5 @@ class TestAllowed(TestCase):
     def test_allowed_size(self):
         for n in range(1, 10):
             # Count the number of one/two-body terms in the allowed set
-            n_allowed = 9 * n * (n - 1) // 2 + 3 * n
+            n_allowed = 9 * n * (n - 1) // 2 + 3 * n + 1
             self.assertEqual(n_allowed, len(generate_allowed_subset(n)), 'Failure when n = {}'.format(n))

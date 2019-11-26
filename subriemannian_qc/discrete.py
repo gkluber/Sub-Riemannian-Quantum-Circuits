@@ -1,13 +1,16 @@
-from functools import partial, partialmethod
-import qiskit
+from functools import partial
+
 import numpy as np
 from scipy.linalg import expm
 from scipy.optimize import minimize
 
-from subriemannian_qc.validate import is_unitary_matrix
 from subriemannian_qc.gate_approximator import GateApproximator
-from subriemannian_qc.util import generate_lie_algebra, vec_matrix_linear_comb, generate_allowed_subset, trace_error, \
-    elementwise_error
+from subriemannian_qc.util import vec_matrix_linear_comb, generate_allowed_subset, elementwise_error
+from subriemannian_qc.validate import is_unitary_matrix
+
+'''
+Implementation of the discrete geodesic method from Michael Swaddle's paper (2017)
+'''
 
 
 class DiscreteApproximator(GateApproximator):
@@ -29,7 +32,7 @@ class DiscreteApproximator(GateApproximator):
         self.q = q
         self.omega = omega
 
-    def approx_matrix(self, unitary: np.ndarray):
+    def approx_matrix(self, unitary: np.ndarray) -> (np.ndarray, np.ndarray):
         if not is_unitary_matrix(unitary) or unitary.shape[0] != self.N:
             return None
 
@@ -38,7 +41,7 @@ class DiscreteApproximator(GateApproximator):
                        allowed=self.allowed)
         res = minimize(cost, coefficients, options={'disp': True})
         optimal_coefficients = res.x
-        return self._get_matrix(optimal_coefficients, self.num_segments, self.allowed)
+        return self._get_matrix(optimal_coefficients, self.num_segments, self.allowed), optimal_coefficients
 
     @staticmethod
     def _get_matrix(coefficients: np.ndarray, num_segments: int, allowed: np.ndarray):

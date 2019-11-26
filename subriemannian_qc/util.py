@@ -1,14 +1,14 @@
-import functools
-import warnings
-from typing import List, Set, Tuple
-import numpy as np
-from qiskit.quantum_info.operators import Operator
-from itertools import permutations
-from subriemannian_qc.matrix_util import conj_transpose
-from collections import Counter
-from math import factorial
+from typing import List
 
+import numpy as np
+
+from subriemannian_qc.matrix_util import conj_transpose
 from subriemannian_qc.validate import is_matrix
+
+'''
+The common computational tasks needed by all of the geodesic methods.
+'''
+
 
 I = np.identity(2, dtype=np.complex_)
 X = np.array([[0, 1], [1, 0]], dtype=np.complex_)
@@ -16,9 +16,10 @@ Y = np.array([[0, 1j], [-1j, 0]], dtype=np.complex_)
 Z = np.array([[1, 0], [0, -1]], dtype=np.complex_)
 
 
+# Generates the Lie algebra u(2^n)
 def generate_lie_algebra(n: int):
     basis_indices = [0, 1, 2, 3]
-    basis_combs = combinations(basis_indices, n)[1::]  # Exclude I since it's not in su(2^n)
+    basis_combs = combinations(basis_indices, n)
     normalization = np.exp2(n / 2)
 
     # multiply by i to make them skew-Hermitian and factor in normalization
@@ -26,6 +27,7 @@ def generate_lie_algebra(n: int):
     return basis
 
 
+# Generates the allowed subset for u(2^n)
 def generate_allowed_subset(n: int) -> np.ndarray:
     normalization = np.exp2(n / 2)
     if n == 0:
@@ -62,6 +64,9 @@ def generate_allowed_subset(n: int) -> np.ndarray:
     return 1j * np.array(allowed) / normalization
 
 
+# Given a tuple in the form (a_1, a_2, ..., a_n), where a_i is in [0,1,2,3]
+# Outputs the corresponding tensor product, such that the first element in the tuple
+# corresponds to the least significant (right-most) factor of the tensor product
 def get_pauli_tensor(index_string) -> np.ndarray:
     size = len(index_string)
     if size == 0:
@@ -73,6 +78,7 @@ def get_pauli_tensor(index_string) -> np.ndarray:
     return result
 
 
+# Convert number (0,1,2,3) to 2x2 complex Pauli matrix
 def get_pauli(index: int) -> np.ndarray:
     if index == 0:
         return np.identity(2)
@@ -86,12 +92,14 @@ def get_pauli(index: int) -> np.ndarray:
 
 # Computes the linear combination of a vector and a list of matrices,
 # such that the elements of the vectors become the weightings of the
-# matrix linear combination
+# matrix linear combination. For example, we could use this to decompose
+# a 2x2 matrix A as aI + bX + cY + dZ by passing in np.array([a,b,c,d])
+# and np.array([I,X,Y,Z])
 def vec_matrix_linear_comb(vector: np.ndarray, matrix_list: np.ndarray):
     return np.tensordot(vector, matrix_list, axes=1)
 
 
-# Pretty ugly, but efficient. TODO refactor?
+# Pretty ugly, but efficient way of generating combinations with replacement.
 def combinations(elems: List[int], length: int):
     if len(elems) == 0 or length == 0:
         return []
@@ -99,70 +107,19 @@ def combinations(elems: List[int], length: int):
     return np.stack(np.meshgrid(*tuple(elems for _ in range(length))), -1).reshape(-1, length)
 
 
-# TODO maybe this will be needed?
-def lazy_combinations(elems: List[int], length: int):
-    pass
-
-
-'''
-def swap(arr: List[int], i: int, j: int):
-    temp = arr[i]
-    arr[i] = arr[j]
-    arr[j] = temp
-
-
-# Iterative implementation of Heap's algorithm optimized for the case
-# when there are many repeated elements
-def distinct_permutations(elems: List[int]):
-    results = []
-    size = len(elems)
-    elems = elems.copy()  # Don't want our swaps bleeding back into the original list
-    if size == 0:
-        return results
-
-    # Compute the number of iterations we need to take
-    cnt = Counter(elems)
-    frequencies = cnt.items()
-    redundancies = functools.reduce(lambda a,b: a*b, [factorial(value) for _, value in frequencies])
-    num_perms = factorial(size) // redundancies
-
-    results = set()
-    _distinct_permutations_helper(elems, results, size)
-    return results
-
-
-# Permuting only elements in the slice elems[:k] at a time recursively
-# This corresponds to a recursive implementation of Heap's algorithm, but
-# we optimize for
-def _distinct_permutations_helper(elems: List[int], results: Set[Tuple[int]], k: int):
-    if k == 1:
-        results.add(tuple(elems.copy()))
-        return
-    else:
-        # Permute with element k - 1 unchanged
-        _distinct_permutations_helper(elems, results, k - 1)
-        for x in range(k):
-            if k % 2 == 0:
-                # If these two elements are the same, don't recurse
-                if elems[x] == elems[k - 1]:
-                    pass
-                swap(elems, x, k - 1)
-            else:
-                # If these two elements are the same, don't recurse
-                if elems[0] == elems[k - 1]:
-                    pass
-                swap(elems, 0, k - 1)
-            _distinct_permutations_helper(elems, results, k - 1)
-'''
-
-
+# Compute the trace error of two matrices. Note that this may be negative,
+# but is guaranteed to be symmetric.
 def trace_error(a: np.ndarray, b: np.ndarray):
     if not is_matrix(a) or not is_matrix(b):
         raise ValueError
+
+    # TODO further validate inputs
 
     n = a.shape[0]
     return 2 ** n - np.real(np.trace(np.matmul(a, conj_transpose(b))))
 
 
+# Simply sum the magnitudes of the differences for each slot in the matrix
 def elementwise_error(a: np.ndarray, b: np.ndarray):
+    # TODO validate inputs
     return np.sum(np.absolute(a - b) ** 2)

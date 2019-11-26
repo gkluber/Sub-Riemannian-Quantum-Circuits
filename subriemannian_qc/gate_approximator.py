@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
-from qiskit.circuit import QuantumCircuit
+
 import numpy as np
+
+'''
+Abstract base class that defines the interface for all geodesic gate approximators.
+'''
 
 
 class GateApproximator(ABC):
