@@ -7,5 +7,5 @@ Requirements:
 - Scipy version >= 1.2.1
 
 References:
-- Swaddle, M. <i>SubRiemannian geodesics and cubics for efficient quantum circuits.</i> 6 Sept. 2019. The University of Western Australia, MPhil thesis. UWA Research Repository, https://research-repository.uwa.edu.au/en/publications/subriemannian-geodesics-and-cubics-for-efficient-quantum-circuits
+- Swaddle, M. <i>SubRiemannian geodesics and cubics for efficient quantum circuits.</i> 6 Sept. 2017. The University of Western Australia, MPhil thesis. UWA Research Repository, https://research-repository.uwa.edu.au/en/publications/subriemannian-geodesics-and-cubics-for-efficient-quantum-circuits
 
