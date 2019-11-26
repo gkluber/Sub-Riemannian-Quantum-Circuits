@@ -1,4 +1,5 @@
 import functools
+import warnings
 from typing import List, Set, Tuple
 import numpy as np
 from qiskit.quantum_info.operators import Operator
@@ -26,12 +27,13 @@ def generate_lie_algebra(n: int):
 
 
 def generate_allowed_subset(n: int) -> np.ndarray:
+    normalization = np.exp2(n / 2)
     if n == 0:
         return np.array([])
     elif n == 1:
-        return np.array([X, Y, Z])
+        return 1j * np.array([I, X, Y, Z]) / normalization
 
-    allowed_strings = []
+    allowed_strings = [[0]*n]  # Include the identity to get U(2^n)
 
     # Generate all one-body basis elements
     for i in range(1, 4):
@@ -57,7 +59,7 @@ def generate_allowed_subset(n: int) -> np.ndarray:
     for string in allowed_strings:
         allowed.append(get_pauli_tensor(string))
 
-    return np.array(allowed)
+    return 1j * np.array(allowed) / normalization
 
 
 def get_pauli_tensor(index_string) -> np.ndarray:
@@ -163,4 +165,4 @@ def trace_error(a: np.ndarray, b: np.ndarray):
 
 
 def elementwise_error(a: np.ndarray, b: np.ndarray):
-    return np.sum((a - b) ** 2)
+    return np.sum(np.absolute(a - b) ** 2)
