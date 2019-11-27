@@ -36,7 +36,7 @@ class DiscreteApproximator(GateApproximator):
         if not is_unitary_matrix(unitary) or unitary.shape[0] != self.N:
             return None
 
-        coefficients = np.random.rand(self.num_segments * self.n_allowed) / 10
+        coefficients = np.random.rand(self.num_segments * self.n_allowed) / self.num_segments
         cost = partial(self._cost, target=unitary, omega=self.omega, p=self.p, q=self.q, num_segments=self.num_segments,
                        allowed=self.allowed)
         res = minimize(cost, coefficients, options={'disp': True})
